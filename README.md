@@ -103,14 +103,28 @@ As with the homogeneous mixture solvers, multi-component logic is marked with: M
 
 ---
 
-## Observables
+## Observables and Output Format
 
-The solvers compute equilibrium correlation functions of the energy–momentum tensor, including:
+The solvers compute equilibrium correlation functions of components of the energy–momentum tensor, including:
 
 - Shear stress tensor components
 - Bulk viscous pressure
 
 Transport coefficients are obtained via time integrals of autocorrelation functions using the Green–Kubo formalism.
+
+---
+
+### Output file
+
+The program outputs a CSV file named `output.csv` with the following format:
+
+| Column | Description                    |
+|--------|--------------------------------|
+| time   | Simulation time (units of Δt)  |
+| observable | Value of the observable at that time |
+| correlator | Autocorrelation function value at that time lag |
+
+The file contains exactly `TMAX` rows (not counting the header). The columns have the header: time, observable, correlator
 
 ---
 
