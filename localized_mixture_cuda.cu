@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include <omp.h>
 #include <time.h>
 #include <curand.h>
 #include <curand_kernel.h>
@@ -406,7 +405,11 @@ int main(void) {
     srand(SEED);
 
     double observable[NT];
-    double t0 = omp_get_wtime();
+    cudaEvent_t start, stop;
+    cudaEventCreate(&start);
+    cudaEventCreate(&stop);
+
+    cudaEventRecord(start, 0);
 
     /* ---------------- Host initialization ---------------- */
 
@@ -467,9 +470,14 @@ int main(void) {
     /* ---------------- Analysis ---------------- */
 
     double integral = time_correlator_integral(observable);
+    cudaEventRecord(stop, 0);
+    cudaEventSynchronize(stop);
+
+    float ms = 0.0f;
+    cudaEventElapsedTime(&ms, start, stop);
 
     printf("Eta = %f\n", sys_host.V / TEMPERATURE * integral * DT);
-    printf("Runtime = %f s\n", omp_get_wtime() - t0);
+    printf("Kernel time: %.3f ms\n", ms);
     printf("Collision rate = %f\n", total_collisions / (double)NT);
 
     /* ---------------- Cleanup ---------------- */
