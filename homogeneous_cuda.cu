@@ -1,8 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include <omp.h>
-#include <time.h>
 #include <curand.h>
 #include <curand_kernel.h>
 
@@ -337,7 +335,11 @@ int main(void) {
     ParticleSystem* sys_dev;
     Particle* part_dev;
     
-    double t0 = omp_get_wtime();
+    cudaEvent_t start, stop;
+    cudaEventCreate(&start);
+    cudaEventCreate(&stop);
+
+    cudaEventRecord(start, 0);
 
     initialize_particles(&sys_host);
     cudaMalloc(&sys_dev, sizeof(ParticleSystem));
@@ -356,9 +358,7 @@ int main(void) {
     for (int t = 0; t < NT; t++) {
 
         free_stream<<<(NPART+255)/256, 256>>>(sys_dev);
-        int k = rand();
-        collide_monte_carlo<<<(NPART+255)/256, 256>>>(sys_dev, d_states, k);
-        cudaDeviceSynchronize();
+        collide_monte_carlo<<<(NPART+255)/256, 256>>>(sys_dev, d_states, rand());
         cudaMemcpy(part_host, part_dev, sizeof(Particle) * NPART, cudaMemcpyDeviceToHost);
 
         // For any other observable change the definition here
@@ -367,8 +367,14 @@ int main(void) {
     cudaMemcpy(&sys_host, sys_dev, sizeof(ParticleSystem), cudaMemcpyDeviceToHost);
     double integral = correlator_integral(observable);
 
+    cudaEventRecord(stop, 0);
+    cudaEventSynchronize(stop);
+
+    float ms = 0.0f;
+    cudaEventElapsedTime(&ms, start, stop);
+
     printf("Eta = %f\n", sys_host.V / TEMPERATURE * integral * DT);
-    printf("Runtime = %f s\n", omp_get_wtime() - t0);
+    printf("Kernel time: %.3f ms\n", ms);
     printf("Collision rate = %f\n", sys_host.coll_count/(double)NT);
 
     cudaFree(part_dev);
