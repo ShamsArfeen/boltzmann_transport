@@ -16,7 +16,7 @@ shear and bulk viscosity calculations from microscopic dynamics.
 - Homogeneous and spatially inhomogeneous (local) systems
 - Single-component and multi-component (mixture) gases
 - C and CUDA implementations
-- Scales to large particle numbers on GPU
+- Scales better on GPU for large particle numbers
 - Modular structure with clear extension points
 
 ---
