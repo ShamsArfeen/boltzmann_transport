@@ -1,6 +1,6 @@
 # Boltzmann-Transport
 
-An algorithm for evolving Boltzmann systems and extracting transport coefficients using Green-Kubo method.  
+An algorithm for evolving Boltzmann systems and extracting transport coefficients using the Green-Kubo method.  
 The codes are designed for near-equilibrium relativistic gases and support both homogeneous and spatially
 inhomogeneous (or local) systems, with CPU and CUDA implementations.
 
