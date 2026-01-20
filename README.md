@@ -1,6 +1,6 @@
 # Boltzmann-Transport
 
-A collection of Boltzmann-equation–based Monte Carlo solvers for computing transport coefficients using Green–Kubo relations.  
+An algorithm for evolving Boltzmann systems and extracting transport coefficients using Green-Kubo method.  
 The codes are designed for near-equilibrium relativistic gases and support both homogeneous and spatially
 inhomogeneous (or local) systems, with CPU and CUDA implementations.
 
@@ -11,7 +11,7 @@ shear and bulk viscosity calculations from microscopic dynamics.
 
 ## Features
 
-- Green–Kubo evaluation of shear and bulk viscosities
+- Green-Kubo evaluation of shear and bulk viscosities
 - Relativistic Boltzmann dynamics
 - Homogeneous and spatially inhomogeneous (local) systems
 - Single-component and multi-component (mixture) gases
@@ -34,7 +34,7 @@ The repository contains six main solvers, organized by physical model and execut
 - Collisions occur between any particle pair in the full volume
 - Collision probability ∝ Δt / V
 - Free streaming does not affect observables
-- Computes shear and bulk viscosities via Green–Kubo relations
+- Computes shear and bulk viscosities via Green-Kubo relations
 
 This solver is intended as a minimal reference implementation.
 
@@ -97,7 +97,7 @@ This solver allows the study of local transport properties in non-uniform system
 - Extension of the local solver to multi-component gases
 - Species-dependent masses and cross sections
 - Collision handling restricted to cells
-- Efficient and race-condition–safe GPU implementation
+- Efficient and race-condition-safe GPU implementation
 
 As with the homogeneous mixture solvers, multi-component logic is marked with: MIXTURE
 
@@ -145,5 +145,5 @@ See the `LICENSE` file for details.
 
 ## Citation
 
-If you use this code in academic work, please cite it appropriately or reference the repository.
+If you use this code in academic work, please cite it or reference the repository.
 A `CITATION.cff` file can be added upon request.
