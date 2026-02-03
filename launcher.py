@@ -11,7 +11,7 @@ import time
 import multiprocessing as mp
 
 
-events =    5
+events =    10
 Npart =     512
 Nt =        50_000
 
