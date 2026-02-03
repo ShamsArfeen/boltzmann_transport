@@ -33,7 +33,7 @@ def COMPILE_CUDA(solver):
             ]
 
 solver = "mixture.c"
-SRC_CU = "/content/boltzmann-transport/" + solver
+SRC_CU = "/content/boltzmann_transport/" + solver
 
 def run_single_event(args):
     x1, T, s11, s22, s12, m1, m2, observable = args
