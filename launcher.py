@@ -131,7 +131,7 @@ def plot_avg_corr(time, corr, err):
 
     plt.xlabel(r"$t\;\mathrm{[GeV^{-1}]}$")
     plt.ylabel(
-        r"$\langle \bar{\pi}^{xy}(t)\bar{\pi}^{xy}(0)\rangle\;\mathrm{[GeV^{8}]}$"
+        r"$C(t);\mathrm{[GeV^{8}]}$"
     )
     plt.legend()
     plt.grid(True)
