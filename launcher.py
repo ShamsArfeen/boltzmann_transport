@@ -33,7 +33,7 @@ def COMPILE_CUDA(solver):
             ]
 
 solver = "mixture.c"
-SRC_CU = "/content/boltzmann_transport/" + solver
+SRC_CU = "/content/boltzmann-transport/" + solver
 
 def run_single_event(args):
     x1, T, s11, s22, s12, m1, m2, observable = args
@@ -139,22 +139,26 @@ def plot_avg_corr(time, corr, err):
 
 
 def launch_simulation(x1, T, s11,s22,s12, mass1, mass2, observable="shear"):
-    # launch parallel events
-    args = [(x1, T, s11,s22,s12, mass1, mass2, observable) for _ in range(events)]
-    output = pool.map(run_single_event, args)
-    dfs, res = zip(*output)
+    start = time.time()
+    with mp.Pool(processes=events) as pool:
+        # launch parallel events
+        args = [(x1, T, s11,s22,s12, mass1, mass2, observable) for _ in range(events)]
+        output = pool.map(run_single_event, args)
+        dfs, res = zip(*output)
 
-    dfs = list(dfs)
-    res = np.array(res)
+        dfs = list(dfs)
+        res = np.array(res)
 
-    t, mean_corr, err_corr = average_correlators(dfs)
+        t, mean_corr, err_corr = average_correlators(dfs)
 
-    plot_avg_corr(t, mean_corr, err_corr)
+        plot_avg_corr(t, mean_corr, err_corr)
 
-    res = np.array(res)
-    mean = np.mean(res)
-    std  = np.std(res, ddof=1) / np.sqrt(events)
+        res = np.array(res)
+        mean = np.mean(res)
+        std  = np.std(res, ddof=1) / np.sqrt(events)
 
-    print(f"x1={x1}, m1={mass1},m2={mass2}, T={T}, s11={s11},s22={s22},s12={s12}, eta={mean:.6f}, err={std:.6f}")
+        print(f"x1={x1}, m1={mass1},m2={mass2}, T={T}, s11={s11},s22={s22},s12={s12}, eta={mean:.6f}, err={std:.6f}")
 
-    return mean, std
+        return mean, std
+    end = time.time()
+    print(f"Time: {end-start} s")
