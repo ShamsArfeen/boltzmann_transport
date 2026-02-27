@@ -12,7 +12,7 @@ import multiprocessing as mp
 
 
 events =    10
-Npart =     512
+Npart =     4000
 Nt =        50_000
 
 
