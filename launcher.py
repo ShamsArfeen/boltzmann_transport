@@ -11,8 +11,8 @@ import time
 import multiprocessing as mp
 
 
-events =    10
-Npart =     4000
+events =    5
+Npart =     512
 Nt =        50_000
 
 
@@ -33,7 +33,8 @@ def COMPILE_CUDA(solver):
             ]
 
 solver = "mixture.c"
-SRC_CU = "/content/boltzmann_transport/" + solver
+helper = "bessel.h"
+SRC_CU = "/content/boltzmann_transport/"
 
 def run_single_event(args):
     x1, T, s11, s22, s12, m1, m2, observable = args
@@ -42,7 +43,8 @@ def run_single_event(args):
 
     try:
         # copy CUDA source from absolute path
-        shutil.copy(SRC_CU, os.path.join(workdir, solver))
+        shutil.copy(SRC_CU + solver, os.path.join(workdir, solver))
+        shutil.copy(SRC_CU + helper, os.path.join(workdir, helper))
 
         # switch to isolated directory
         os.chdir(workdir)
@@ -70,11 +72,11 @@ def run_single_event(args):
         content[27] = f"double DT = 0.001;\n"
 
         if observable == "shear":
-            content[355] = "observable[t] = shear_stress_tensor_xy(&sys);\n"
+            content[398] = "observable[t] = shear_stress_tensor_xy(&sys);\n"
         elif observable == "bulk":
-            content[355] = "observable[t] = bulk_viscous_pressure(&sys);\n"
+            content[398] = "observable[t] = bulk_viscous_pressure(&sys);\n"
 
-        content[353] = "if (t == 100 && DT < 1e7) {if (coll_count/(double)NPART < 5) {t = 0;DT *= 2.0;coll_count = 0;}}\n"
+        content[396] = "if (t == 100 && DT < 1e7) {if (coll_count/(double)NPART < 5) {t = 0;DT *= 2.0;coll_count = 0;}}\n"
 
 
         with open(solver, "w") as f:
