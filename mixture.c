@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
-
+#include "bessel.h"
 /* ============================================================
    Constants
    ============================================================ */
@@ -27,7 +27,7 @@
 #define     TMAX            500
 #define     DT              0.1
 
-#define     EPS             1e-12
+#define     EPS             1e-20
 
 /* ============================================================
    Derived thermodynamics
@@ -201,13 +201,56 @@ void initialize_particles(ParticleSystem *sys) {
         p_total = vec3_add(p_total, sys->part[i].p);
         e_total += E;
     }
-
     // boost to Landau rest frame
     Vec3 beta = vec3_scale(p_total, 1.0 / fmax(e_total, EPS));
+    // ****** ROBUST *******
+    double pSQR1=0.0, pSQR2=0.0;
+    // **********************
     for (int i = 0; i < NPART; i++) {
         double E = particle_energy(&sys->part[i]);
         sys->part[i].p = lorentz_boost(sys->part[i].p, E, beta);
+        
+        // ****** ROBUST *******
+        if (i < N1)         {pSQR1 += vec3_dot(sys->part[i].p, sys->part[i].p);}
+        else if (i < N1+N2) {pSQR2 += vec3_dot(sys->part[i].p, sys->part[i].p);}
+        else                printf("Bad index\n");
+        // **********************
     }
+    // ****** ROBUST *******
+    pSQR1 /= N1;
+    pSQR2 /= N2;
+    double z, K2, K3, mean_pSQR;
+    // rescale momentum to match expected value at temperature
+    // ****** SPECIE 1 ******
+    if (MASS1 == 0) {
+      mean_pSQR = 12.0 * TEMPERATURE * TEMPERATURE;
+    }
+    else {
+      z = MASS1 / TEMPERATURE;
+      K2 = bessel_Kn(2, z);
+      K3 = bessel_Kn(3, z);
+      mean_pSQR = 3.0 * MASS1 * TEMPERATURE * (K3 / K2);
+    }
+    // printf("momentum scaling factor: %f\n", sqrt(mean_pSQR/pSQR1));
+    for (int i = 0; i < N1; i++) {
+        sys->part[i].p = vec3_scale(sys->part[i].p, sqrt(mean_pSQR/pSQR1));
+    }
+    // rescale momentum to match expected value at temperature
+    // ****** SPECIE 2 ******
+    if (MASS2 == 0) {
+      mean_pSQR = 12.0 * TEMPERATURE * TEMPERATURE;
+    }
+    else {
+      z = MASS2 / TEMPERATURE;
+      K2 = bessel_Kn(2, z);
+      K3 = bessel_Kn(3, z);
+      mean_pSQR = 3.0 * MASS2 * TEMPERATURE * (K3 / K2);
+    }
+    // printf("momentum scaling factor: %f\n", sqrt(mean_pSQR/pSQR2));
+    for (int i = N1; i < N1+N2; i++) {
+        sys->part[i].p = vec3_scale(sys->part[i].p, sqrt(mean_pSQR/pSQR2));
+    }
+    // **********************
 }
 
 /* ============================================================
@@ -366,4 +409,5 @@ int main(void) {
     free(sys.part);
     return 0;
 }
+
 
