@@ -72,11 +72,11 @@ def run_single_event(args):
         content[27] = f"double DT = 0.001;\n"
 
         if observable == "shear":
-            content[398] = "observable[t] = shear_stress_tensor_xy(&sys);\n"
+            content[419] = "observable[t] = shear_stress_tensor_xy(&sys);\n"
         elif observable == "bulk":
-            content[398] = "observable[t] = bulk_viscous_pressure(&sys);\n"
+            content[419] = "observable[t] = bulk_viscous_pressure(&sys);\n"
 
-        content[396] = "if (t == 100 && DT < 1e7) {if (coll_count/(double)NPART < 5) {t = 0;DT *= 2.0;coll_count = 0;}}\n"
+        content[417] = "if (t == 100 && DT < 1e7) {if (coll_count/(double)NPART < 5) {t = 0;DT *= 2.0;coll_count = 0;}}\n"
 
 
         with open(solver, "w") as f:
