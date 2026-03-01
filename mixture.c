@@ -156,6 +156,25 @@ static inline Vec3 lorentz_boost(Vec3 p, double E, Vec3 beta) {
    Initialization
    ============================================================ */
 
+void sample_momentum(double *p, double *E, double mass, double T) {
+    while(1)
+    {
+        // sample from Gamma(k=3, theta=T)
+        *p =
+            -T*log(rng_uniform()) -
+            T*log(rng_uniform()) -
+            T*log(rng_uniform());
+
+        *E = sqrt((*p)*(*p) + mass*mass);
+
+        // acceptance probability
+        double accept = exp(-((*E) - (*p))/T);
+
+        if(rng_uniform() < accept)
+            return;
+    }
+}
+
 void initialize_particles(ParticleSystem *sys) {
 
         // ****** MIXTURE *******
@@ -185,16 +204,18 @@ void initialize_particles(ParticleSystem *sys) {
             sys->L
         );
 
-        double beta_e;
-        double beta_m = MASS / (double)TEMPERATURE;
-        while (1) {
-            beta_e = -log(rng_uniform()) - log(rng_uniform()) - log(rng_uniform());
-            if (beta_e < beta_m) continue;
-            else if (rng_uniform() < sqrt(beta_e*beta_e - beta_m*beta_m) / beta_e) break;
-        }
+        // double beta_e;
+        // double beta_m = MASS / (double)TEMPERATURE;
+        // while (1) {
+        //     beta_e = -log(rng_uniform()) - log(rng_uniform()) - log(rng_uniform());
+        //     if (beta_e < beta_m) continue;
+        //     else if (rng_uniform() < sqrt(beta_e*beta_e - beta_m*beta_m) / beta_e) break;
+        // }
+        // double E = beta_e * TEMPERATURE;
+        // double p = sqrt(E*E - MASS*MASS);
 
-        double E = beta_e * TEMPERATURE;
-        double p = sqrt(E*E - MASS*MASS);
+        double E,p;
+        sample_momentum(&p, &E, MASS, TEMPERATURE);
 
         sys->part[i].p = vec3_scale(rng_unit_sphere(), p);
 
